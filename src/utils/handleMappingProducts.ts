@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import { PcnProduct, getPCNProducts } from '../pcn-api-wrapper/GET-products'
 import { createPCNProducts } from '../pcn-api-wrapper/POST-product'
 import { getProducts } from '../sap-api-wrapper/GET-products'
@@ -18,6 +19,7 @@ export async function mapProducts(): Promise<returnType> {
 
   // Define function for a getting a page of shopify Products from Gql
   async function getShopifyProductsPage(curser?: string) {
+    // handle throttling errors like https://chat.openai.com/c/c6a3d0be-6663-4b85-825b-c4b17965194f
     return await shopifyClient.query({
       products: {
         __args: { first: 180, after: curser },
@@ -27,7 +29,6 @@ export async function mapProducts(): Promise<returnType> {
         },
         nodes: {
           id: true,
-
           variants: {
             __args: { first: 1 },
             nodes: {
@@ -47,9 +48,24 @@ export async function mapProducts(): Promise<returnType> {
   // Define the type of "allShopifyProducts" using the return type of the function that returns the single page
   let allShopifyProducts: Awaited<ReturnType<typeof getShopifyProductsPage>>[] = []
   while (true) {
-    allShopifyProducts.push(
-      await getShopifyProductsPage(allShopifyProducts.at(-1)?.products.pageInfo.endCursor)
-    )
+    try {
+      allShopifyProducts.push(
+        await getShopifyProductsPage(allShopifyProducts.at(-1)?.products.pageInfo.endCursor)
+      )
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.data.errors.message === 'Throttled') {
+          await sleep(20000)
+          continue
+        } else if (error.response != null) {
+          await sendTeamsMessage(
+            '[1n2j3k1] Error getting shopify products',
+            `**Error**: ${JSON.stringify(error.response.data.errors)}`
+          )
+        }
+      }
+      return { type: 'error', error: 'Error getting shopify products' }
+    }
     if (!allShopifyProducts.at(-1)?.products.pageInfo.hasNextPage) break
     await sleep(20000)
   }

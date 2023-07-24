@@ -1,5 +1,3 @@
-import { PcnProduct } from '../pcn-api-wrapper/GET-products'
-import { PcnImportProductsSuccesResponse } from '../pcn-api-wrapper/POST-product'
 import { extractStringEnvVar } from '../utils/handleCheckingEnvs'
 
 const { IncomingWebhook } = require('ms-teams-webhook')
