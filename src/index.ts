@@ -12,18 +12,17 @@ async function main() {
     console.log(result.error)
   } else {
     const timestamp = new Date(new Date().getTime()).toLocaleString()
-
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
     console.log(timestamp + ': Running the pre Cron job')
     await mapProducts()
     console.log(timestamp + ': Finished the initial run')
 
-    let hour = '14'
-    let minute = '13'
+    let hour = '7'
+    let minute = '0'
     console.log(`Starting the Cron Scheduler to run every day at ${hour}:${minute}`)
     var CronJob = require('cron').CronJob
     var job = new CronJob(
-      `* ${minute} ${hour} * * *`,
+      `0 ${minute} ${hour} * * *`,
       async function () {
         const timestamp = new Date(new Date().getTime()).toLocaleString()
 
