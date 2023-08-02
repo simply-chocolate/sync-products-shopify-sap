@@ -1,5 +1,6 @@
 import { SapItemData } from '../sap-api-wrapper/GET-products'
 import { sendTeamsMessage } from '../teams_notifier/SEND-teamsMessage'
+import { productTypesObject } from './productTypeObject'
 
 export function isSapProductIsMissingInfo(sapProduct: SapItemData): boolean {
   let stringOfMissingInfoFields = ''
@@ -15,6 +16,8 @@ export function isSapProductIsMissingInfo(sapProduct: SapItemData): boolean {
   if (sapProduct.U_BOYX_Protein == null) stringOfMissingInfoFields += 'U_BOYX_Protein<BR>'
   if (sapProduct.U_BOYX_salt == null) stringOfMissingInfoFields += 'U_BOYX_Salt<BR>'
   if (sapProduct.U_BOYX_varedel == null) stringOfMissingInfoFields += 'U_BOYX_varedel<BR>'
+  if (productTypesObject[String(sapProduct.ItemsGroupCode)] == null)
+    stringOfMissingInfoFields += `ItemsGroupCode is not valid: ${sapProduct.ItemsGroupCode}<BR>`
 
   if (stringOfMissingInfoFields == '') return false
   sendTeamsMessage(

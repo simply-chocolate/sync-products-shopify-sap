@@ -4,7 +4,12 @@ import { sendTeamsMessage } from '../teams_notifier/SEND-teamsMessage'
 
 //TODO: See if this needs to be exported, or if we can do it in some other way
 
-export async function updateProduct(itemCode: string, syncWebFieldValue: 'Y' | 'N', syncDate: Date) {
+export async function updateProduct(
+  itemCode: string,
+  syncWebFieldValue: 'Y' | 'N',
+  syncDate: Date,
+  userErrors?: string[]
+) {
   const authClient = await getAuthorizedClient()
 
   try {
