@@ -12,11 +12,10 @@ async function main() {
   if (result.type == 'error') {
     console.log(result.error)
   } else {
-    const timestamp = new Date(new Date().getTime()).toLocaleString()
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-    console.log(timestamp + ': Running the pre Cron job')
+    console.log(new Date(new Date().getTime()).toLocaleString() + ': Running the pre Cron job')
     await mapProducts()
-    console.log(timestamp + ': Finished the initial run')
+    console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the initial run')
     await logoutSap()
 
     let hour = '7'
@@ -28,11 +27,9 @@ async function main() {
     var job = new CronJob(
       `0 ${minute} ${hour} * * *`,
       async function () {
-        const timestamp = new Date(new Date().getTime()).toLocaleString()
-
-        console.log(timestamp + ': Running the Cron job')
+        console.log(new Date(new Date().getTime()).toLocaleString() + ': Running the Cron job')
         await mapProducts()
-        console.log(timestamp + ': Finished the Cron job ')
+        console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the Cron job ')
         await logoutSap()
       },
       null,
