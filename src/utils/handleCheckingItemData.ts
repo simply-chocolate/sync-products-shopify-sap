@@ -5,8 +5,6 @@ import { productTypesObject } from './productTypeObject'
 export function isSapProductIsMissingInfo(sapProduct: SapItemData): boolean {
   let stringOfMissingInfoFields = ''
 
-  if (sapProduct.U_CCF_Ingrediens_EN == null) stringOfMissingInfoFields += 'U_CCF_Ingrediens_EN <BR>'
-  if (sapProduct.U_CCF_Ingrediens_DA == null) stringOfMissingInfoFields += 'U_CCF_Ingrediens_DA<BR>'
   if (sapProduct.U_BOYX_Energi == null) stringOfMissingInfoFields += 'U_BOYX_Energi<BR>'
   if (sapProduct.U_BOYX_Energik == null) stringOfMissingInfoFields += 'U_BOYX_Energik<BR>'
   if (sapProduct.U_BOYX_fedt == null) stringOfMissingInfoFields += 'U_BOYX_fedt<BR>'

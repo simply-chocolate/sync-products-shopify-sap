@@ -16,18 +16,6 @@ export async function updateMetaFields(
   const metafieldsArray = [
     {
       ownerId: productId,
-      key: 'list_of_ingredients_en',
-      value: sapProduct.U_CCF_Ingrediens_EN,
-      namespace: 'custom',
-    },
-    {
-      ownerId: productId,
-      key: 'list_of_ingredients_da',
-      value: sapProduct.U_CCF_Ingrediens_DA,
-      namespace: 'custom',
-    },
-    {
-      ownerId: productId,
       key: 'list_of_ingredients',
       value: sapProduct.U_BOYX_varedel,
       namespace: 'custom',

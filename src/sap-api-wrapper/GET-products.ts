@@ -13,9 +13,6 @@ export type SapItemData = {
   U_CCF_Web_SalesUOM: string
   U_CCF_Web_Sync_Date: Date
 
-  U_CCF_Ingrediens_DA: string
-  U_CCF_Ingrediens_EN: string
-
   U_BOYX_varedel: string
 
   U_BOYX_Energi: number
@@ -52,8 +49,6 @@ export async function getProducts(): Promise<SapItemsData | void> {
           'ItemCode',
           'ItemName',
           'U_CCF_Web_SalesUOM',
-          'U_CCF_Ingrediens_DA',
-          'U_CCF_Ingrediens_EN',
           'U_BOYX_varedel',
           'U_BOYX_Energi',
           'U_BOYX_Energik',
