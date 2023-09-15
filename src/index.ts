@@ -12,7 +12,7 @@ async function main() {
   if (result.type == 'error') {
     console.log(result.error)
   } else {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+    //process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
     console.log(new Date(new Date().getTime()).toLocaleString() + ': Running the pre Cron job')
     await mapProducts()
     console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the initial run')
