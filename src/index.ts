@@ -14,7 +14,7 @@ async function main() {
   } else {
     console.log(new Date(new Date().getTime()).toLocaleString() + ': Running the pre Cron job')
     try {
-      console.log(await updateEuTaxCollection())
+      await updateEuTaxCollection()
       await mapProducts()
       console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the initial run')
       await logoutSap()
