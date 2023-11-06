@@ -30,7 +30,11 @@ export async function mapProducts(): Promise<returnType> {
         nodes: {
           id: true,
           variants: {
-            __args: { first: 1 },
+            __args: { first: 10, after: curser },
+            pageInfo: {
+              hasNextPage: true,
+              endCursor: true,
+            },
             nodes: {
               id: true,
               sku: true,
@@ -49,22 +53,17 @@ export async function mapProducts(): Promise<returnType> {
   let allShopifyProducts: Awaited<ReturnType<typeof getShopifyProductsPage>>[] = []
   while (true) {
     try {
-      allShopifyProducts.push(
-        await getShopifyProductsPage(allShopifyProducts.at(-1)?.products.pageInfo.endCursor)
-      )
+      allShopifyProducts.push(await getShopifyProductsPage(allShopifyProducts.at(-1)?.products.pageInfo.endCursor))
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.data.errors.message === 'Throttled') {
           await sleep(20000)
           continue
         } else if (error.response != null) {
-          await sendTeamsMessage(
-            '[1n2j3k1] Error getting shopify products',
-            `**Error**: ${JSON.stringify(error.response.data.errors)}`
-          )
+          await sendTeamsMessage('[1n2j3k1] Error getting shopify products', `**Error**: ${JSON.stringify(error.response.data.errors)}`)
         }
       }
-      return { type: 'error', error: 'Error getting shopify products' }
+      return { type: 'error', error: '[smdfkls!] Error getting shopify products' }
     }
     if (!allShopifyProducts.at(-1)?.products.pageInfo.hasNextPage) break
     await sleep(20000)
@@ -72,15 +71,10 @@ export async function mapProducts(): Promise<returnType> {
 
   // Goes through the sapProducts to check if it needs to create or update a product
   for (let sapProduct of sapProducts.value) {
-    let productBarcodeCollection = sapProduct.ItemBarCodeCollection.find(
-      (e) => String(e.UoMEntry) === sapProduct.U_CCF_Web_SalesUOM
-    )
+    let productBarcodeCollection = sapProduct.ItemBarCodeCollection.find((e) => String(e.UoMEntry) === sapProduct.U_CCF_Web_SalesUOM)
 
     if (productBarcodeCollection == null) {
-      await sendTeamsMessage(
-        '[894u198] Product Missing Barcode Collection',
-        `SAP Product: ${sapProduct.ItemCode}. Check if WebSales UOM is chosen.`
-      )
+      await sendTeamsMessage('[894u198] Product Missing Barcode Collection', `SAP Product: ${sapProduct.ItemCode}. Check if WebSales UOM is chosen.`)
       continue
     }
 
@@ -155,7 +149,7 @@ export async function mapProducts(): Promise<returnType> {
 
         continue
       }
-
+      await sleep(5000) // Sleep for 5 seconds to avoid throttling
       if (!isSapProductIsMissingInfo(sapProduct)) {
         await updateMetaFields(shopifyProductId, sapProduct, shopifyInventoryItemId)
       } else {
@@ -175,15 +169,6 @@ export async function mapProducts(): Promise<returnType> {
             input: {
               title: sapProduct.ItemName,
               status: 'DRAFT',
-
-              // productType: //TODO: Handle this
-              //productCategory: {
-              // productTaxonomyNodeId: 'Food, Beverages & Tobacco > Food Items > Candy & Chocolate',
-              // List of product catogories: https://help.shopify.com/txt/product_taxonomy/en.txt?shpxid=ff4be998-6865-4E46-C7D8-56DC499A7E09
-              // List to devtools: https://shopify.dev/docs/api/admin-graphql/2023-01/input-objects/ProductCategoryInput
-              // TODO: Try to find the actual gql id in the shopify gql explorer: https://shopify.dev/docs/apps/tools/graphiql-admin-api
-              //},
-
               variants: [
                 {
                   barcode: productBarcodeCollection.Barcode,
