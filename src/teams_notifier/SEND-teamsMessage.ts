@@ -6,7 +6,7 @@ const url = extractStringEnvVar('TEAMS_WEBHOOK_URL')
 
 const webhook = new IncomingWebhook(url)
 
-export async function sendTeamsMessage(title: string, body?: string, summary?: string) {
+export async function sendTeamsMessage(title: string, body: string, summary?: string) {
   await webhook.send({
     '@type': 'MessageCard',
     title: title,

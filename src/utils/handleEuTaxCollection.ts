@@ -115,7 +115,11 @@ export async function updateEuTaxCollection(): Promise<returnType> {
       updatedProducts += updateProductDataResult.data
     }
   }
+  if (updatedProducts === '') {
+    updatedProducts = 'No products updated'
+  }
   sendTeamsMessage('Updated products in EU Tax Collection', updatedProducts)
+
   return {
     type: 'success',
     data: 'We did it without errors or something',
