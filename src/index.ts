@@ -22,7 +22,7 @@ async function main() {
       console.log(error)
     }
 
-    let hour = '7'
+    let hour = '*'
     let minute = '0'
 
     console.log(`Starting the Cron Scheduler to run every day at ${hour}:${minute}`)
