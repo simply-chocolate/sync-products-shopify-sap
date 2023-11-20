@@ -12,11 +12,11 @@ async function main() {
   if (result.type == 'error') {
     console.log(result.error)
   } else {
-    console.log(new Date(new Date().getTime()).toLocaleString() + ': Running the pre Cron job')
+    console.log(new Date(new Date().getTime()).toLocaleString() + ': Started the script')
     try {
       await updateEuTaxCollection()
       await mapProducts()
-      console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the initial run')
+      console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the script')
       await logoutSap()
     } catch (error) {
       console.log(error)
