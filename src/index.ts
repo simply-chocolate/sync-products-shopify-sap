@@ -21,30 +21,6 @@ async function main() {
     } catch (error) {
       console.log(error)
     }
-
-    let hour = '*'
-    let minute = '0'
-
-    console.log(`Starting the Cron Scheduler to run every day at ${hour}:${minute}`)
-
-    var CronJob = require('cron').CronJob
-    var job = new CronJob(
-      `0 ${minute} ${hour} * * *`,
-      async function () {
-        try {
-          console.log(new Date(new Date().getTime()).toLocaleString() + ': Running the Cron job')
-          await mapProducts()
-          await updateEuTaxCollection()
-          console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the Cron job ')
-          await logoutSap()
-        } catch (error) {
-          console.log(error)
-        }
-      },
-      null,
-      true,
-      'Europe/Copenhagen'
-    )
   }
 
   return
