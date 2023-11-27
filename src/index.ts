@@ -5,6 +5,7 @@ import { checkEnvs } from './utils/handleCheckingEnvs'
 import { mapProducts } from './utils/handleMappingProducts'
 import { logoutSap } from './sap-api-wrapper/POST-logout'
 import { updateEuTaxCollection } from './utils/handleEuTaxCollection'
+import { sendTeamsMessage } from './teams_notifier/SEND-teamsMessage'
 
 async function main() {
   let result = checkEnvs()
@@ -14,8 +15,14 @@ async function main() {
   } else {
     console.log(new Date(new Date().getTime()).toLocaleString() + ': Started the script')
     try {
-      await updateEuTaxCollection()
-      await mapProducts()
+      let updateEuTaxCollectionresult = await updateEuTaxCollection()
+      if (updateEuTaxCollectionresult.type === 'error') {
+        sendTeamsMessage('Error updating EU Tax Collection', `**Error**: ${updateEuTaxCollectionresult.error}`)
+      }
+      let mapProductsResult = await mapProducts()
+      if (mapProductsResult.type === 'error') {
+        sendTeamsMessage('Error mapping products', `**Error**: ${mapProductsResult.error}`)
+      }
       console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the script')
       await logoutSap()
     } catch (error) {

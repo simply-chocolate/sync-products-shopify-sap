@@ -22,7 +22,7 @@ export async function mapProducts(): Promise<returnType> {
     // handle throttling errors like https://chat.openai.com/c/c6a3d0be-6663-4b85-825b-c4b17965194f
     return await shopifyClient.query({
       products: {
-        __args: { first: 180, after: curser },
+        __args: { first: 30, after: curser },
         pageInfo: {
           hasNextPage: true,
           endCursor: true,
@@ -30,7 +30,7 @@ export async function mapProducts(): Promise<returnType> {
         nodes: {
           id: true,
           variants: {
-            __args: { first: 10, after: curser },
+            __args: { first: 3, after: curser },
             pageInfo: {
               hasNextPage: true,
               endCursor: true,
@@ -63,7 +63,7 @@ export async function mapProducts(): Promise<returnType> {
           await sendTeamsMessage('[1n2j3k1] Error getting shopify products', `**Error**: ${JSON.stringify(error.response.data.errors)}`)
         }
       }
-      return { type: 'error', error: '[smdfkls!] Error getting shopify products' }
+      return { type: 'error', error: '[smdfkls!] Error getting shopify products' + error }
     }
     if (!allShopifyProducts.at(-1)?.products.pageInfo.hasNextPage) break
     await sleep(20000)
