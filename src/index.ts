@@ -9,7 +9,7 @@ import { sendTeamsMessage } from './teams_notifier/SEND-teamsMessage'
 
 async function main() {
   let result = checkEnvs()
-
+  // origin
   if (result.type == 'error') {
     console.log(result.error)
   } else {
