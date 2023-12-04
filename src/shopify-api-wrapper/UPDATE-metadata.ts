@@ -1,17 +1,12 @@
 import { Axios, AxiosError } from 'axios'
 import { SapItemData } from '../sap-api-wrapper/GET-products'
-import { updateProduct } from '../sap-api-wrapper/UPDATE-product'
+import { updateProductSap } from '../sap-api-wrapper/UPDATE-product'
 import { sendTeamsMessage } from '../teams_notifier/SEND-teamsMessage'
 import { productTypesObject } from '../utils/productTypeObject'
 import { shopifyClient } from './shopifyClient'
 import { GenqlError } from '../__generated__/genql'
 
-export async function updateMetaFields(
-  productId: string,
-  sapProduct: SapItemData,
-  shopifyInventoryItemId: string,
-  productType?: string
-): Promise<void> {
+export async function updateMetaFields(productId: string, sapProduct: SapItemData, shopifyInventoryItemId: string, productType?: string): Promise<void> {
   // https://shopify.dev/docs/api/admin-graphql/2023-01/mutations/metafieldsSet
   const metafieldsArray = [
     {
@@ -147,10 +142,7 @@ export async function updateMetaFields(
       )
 
       return
-    } else if (
-      metaFieldsRes.inventoryItemUpdate?.userErrors.length !== 0 &&
-      metaFieldsRes.inventoryItemUpdate?.userErrors
-    ) {
+    } else if (metaFieldsRes.inventoryItemUpdate?.userErrors.length !== 0 && metaFieldsRes.inventoryItemUpdate?.userErrors) {
       await sendTeamsMessage(
         '[1mkl235m] Error updating product inventory item',
         `SAP Product: ${sapProduct.ItemCode}.<BR>
@@ -160,7 +152,7 @@ export async function updateMetaFields(
 
       return
     } else {
-      updateProduct(sapProduct.ItemCode, 'N', new Date())
+      updateProductSap(sapProduct.ItemCode, 'N', new Date())
     }
   } catch (error) {
     if (error instanceof AxiosError) {
