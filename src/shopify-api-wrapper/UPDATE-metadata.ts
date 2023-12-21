@@ -6,7 +6,7 @@ import { productTypesObject } from '../utils/productTypeObject'
 import { shopifyClient } from './shopifyClient'
 import { GenqlError } from '../__generated__/genql'
 
-export async function updateMetaFields(productId: string, sapProduct: SapItemData, shopifyInventoryItemId: string, productType?: string): Promise<void> {
+export async function updateMetaFields(productId: string, sapProduct: SapItemData): Promise<void> {
   // https://shopify.dev/docs/api/admin-graphql/2023-01/mutations/metafieldsSet
   const metafieldsArray = [
     {
@@ -120,18 +120,6 @@ export async function updateMetaFields(productId: string, sapProduct: SapItemDat
           updatedAt: true,
         },
       },
-      inventoryItemUpdate: {
-        __args: {
-          id: shopifyInventoryItemId,
-          input: {
-            countryCodeOfOrigin: 'DK',
-          },
-        },
-        userErrors: {
-          field: true,
-          message: true,
-        },
-      },
     })
     if (metaFieldsRes.metafieldsSet?.userErrors.length !== 0 && metaFieldsRes.metafieldsSet?.userErrors) {
       await sendTeamsMessage(
@@ -139,15 +127,6 @@ export async function updateMetaFields(productId: string, sapProduct: SapItemDat
         `SAP Product: ${sapProduct.ItemCode}.<BR>
       Shopify Product: ${productId}.<BR>
       **Error**: ${JSON.stringify(metaFieldsRes.metafieldsSet?.userErrors)}`
-      )
-
-      return
-    } else if (metaFieldsRes.inventoryItemUpdate?.userErrors.length !== 0 && metaFieldsRes.inventoryItemUpdate?.userErrors) {
-      await sendTeamsMessage(
-        '[1mkl235m] Error updating product inventory item',
-        `SAP Product: ${sapProduct.ItemCode}.<BR>
-      Shopify Product: ${productId}.<BR>
-      **Error**: ${JSON.stringify(metaFieldsRes.inventoryItemUpdate?.userErrors)}`
       )
 
       return
@@ -165,7 +144,58 @@ export async function updateMetaFields(productId: string, sapProduct: SapItemDat
       )
       return
     } else if (error instanceof GenqlError) {
-      // TODO: Figure out a way to get the field with the error. In extensions theres an index to the field and I've made the fields into an array
+      for (const errorE of error.errors) {
+        await sendTeamsMessage(
+          '[1mkl235m] GenQL Error updating product meta fields',
+          `SAP Product: ${sapProduct.ItemCode}.<BR>
+        Shopify Product: ${productId}.<BR>
+        **Error**: ${JSON.stringify(errorE.extensions)}`
+        )
+      }
+      return
+    } else {
+      console.log('Error is neither AxiosError or GenqlError: ', error)
+    }
+  }
+}
+
+export async function updateShopifyInventoryItem(shopifyInventoryItemId: string, sapProduct: SapItemData, productId: string): Promise<void> {
+  try {
+    const inventoryUpdateRes = await shopifyClient.mutation({
+      inventoryItemUpdate: {
+        __args: {
+          id: shopifyInventoryItemId,
+          input: {
+            countryCodeOfOrigin: 'DK',
+          },
+        },
+        userErrors: {
+          field: true,
+          message: true,
+        },
+      },
+    })
+
+    if (inventoryUpdateRes.inventoryItemUpdate?.userErrors.length !== 0 && inventoryUpdateRes.inventoryItemUpdate?.userErrors) {
+      await sendTeamsMessage(
+        '[1mkl235m] Error updating product inventory item',
+        `SAP Product: ${sapProduct.ItemCode}.<BR>
+        Shopify Product: ${productId}.<BR>
+        **Error**: ${JSON.stringify(inventoryUpdateRes.inventoryItemUpdate?.userErrors)}`
+      )
+      return
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      await sendTeamsMessage(
+        '[1mkl235m] Request Error updating product meta fields',
+        `SAP Product: ${sapProduct.ItemCode}.<BR>
+      Shopify Product: ${productId}.<BR>
+      **Error**: ${JSON.stringify(error)}
+      **Body**: ${JSON.stringify(error.config)}`
+      )
+      return
+    } else if (error instanceof GenqlError) {
       for (const errorE of error.errors) {
         await sendTeamsMessage(
           '[1mkl235m] GenQL Error updating product meta fields',
