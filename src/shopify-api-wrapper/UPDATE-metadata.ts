@@ -12,7 +12,7 @@ export async function updateMetaFields(productId: string, sapProduct: SapItemDat
     {
       ownerId: productId,
       key: 'list_of_ingredients',
-      value: sapProduct.U_BOYX_varedel,
+      value: sapProduct.U_BOYX_varedel.replace(/\r/g, '\n'),
       namespace: 'custom',
     },
     {
