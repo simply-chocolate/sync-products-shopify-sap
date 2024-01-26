@@ -6,7 +6,7 @@ import { productTypesObject } from '../utils/productTypeObject'
 import { shopifyClient } from './shopifyClient'
 import { GenqlError } from '../__generated__/genql'
 
-export async function updateMetaFields(productId: string, sapProduct: SapItemData): Promise<void> {
+export async function updateMetaFields(productId: string, sapProduct: SapItemData, isCreation: boolean): Promise<void> {
   // https://shopify.dev/docs/api/admin-graphql/2023-01/mutations/metafieldsSet
   const metafieldsArray = [
     {
@@ -131,7 +131,9 @@ export async function updateMetaFields(productId: string, sapProduct: SapItemDat
 
       return
     } else {
-      updateProductSap(sapProduct.ItemCode, 'N', new Date())
+      if (!isCreation) {
+        updateProductSap(sapProduct.ItemCode, 'N', new Date())
+      }
     }
   } catch (error) {
     if (error instanceof AxiosError) {

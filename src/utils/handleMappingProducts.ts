@@ -51,7 +51,7 @@ export async function mapProducts(): Promise<returnType> {
       const product = allShopifyProducts[productId]
 
       for (const variant of product.variants) {
-        barcodeExistsInShopify = variant.barcode === productBarcode.Barcode
+        barcodeExistsInShopify = variant.sku === productBarcode.Barcode
         if (barcodeExistsInShopify) {
           shopifyProductsArray.push({
             productId: productId,
@@ -110,9 +110,8 @@ export async function mapProducts(): Promise<returnType> {
         }
         await sleep(5000) // Sleep for 5 seconds to avoid throttling
         if (!isSapProductIsMissingInfo(sapProduct)) {
-          console.log(`Updating metafields for product ${shopifyProductId}`)
-          await updateMetaFields(shopifyProductId, sapProduct)
           await updateShopifyInventoryItem(shopifyInventoryItemId, sapProduct, shopifyProductId)
+          await updateMetaFields(shopifyProductId, sapProduct, false)
         } else {
           continue
         }
@@ -143,7 +142,7 @@ export async function mapProducts(): Promise<returnType> {
                   harmonizedSystemCode: '1806.90',
                   inventoryItem: {
                     tracked: true,
-                    countryOfOrigin: 'DK',
+                    //countryOfOrigin: 'DK',
                   },
                 },
               ],
@@ -174,7 +173,7 @@ export async function mapProducts(): Promise<returnType> {
       else if (typeof productRes.productCreate.product.id === 'undefined') break
       else {
         if (!isSapProductIsMissingInfo(sapProduct)) {
-          await updateMetaFields(productRes.productCreate.product.id, sapProduct)
+          await updateMetaFields(productRes.productCreate.product.id, sapProduct, true)
         } else {
           continue
         }

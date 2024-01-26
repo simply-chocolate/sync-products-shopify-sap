@@ -31,7 +31,7 @@ async function main() {
       console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the script')
       await logoutSap()
     } catch (error) {
-      console.log(error)
+      console.dir(error, { depth: Infinity })
     }
   }
 
