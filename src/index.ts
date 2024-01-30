@@ -21,12 +21,10 @@ async function main() {
         sendTeamsMessage('Error mapping products', `**Error**: ${mapProductsResult.error}`)
       }
 
-      /*
-        let updateEuTaxCollectionresult = await updateEuTaxCollection()
-        if (updateEuTaxCollectionresult.type === 'error') {
-          sendTeamsMessage('Error updating EU Tax Collection', `**Error**: ${updateEuTaxCollectionresult.error}`)
-        }
-      */
+      let updateEuTaxCollectionresult = await updateEuTaxCollection()
+      if (updateEuTaxCollectionresult.type === 'error') {
+        sendTeamsMessage('Error updating EU Tax Collection', `**Error**: ${updateEuTaxCollectionresult.error}`)
+      }
 
       console.log(new Date(new Date().getTime()).toLocaleString() + ': Finished the script')
       await logoutSap()
