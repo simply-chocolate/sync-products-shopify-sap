@@ -3,13 +3,14 @@ import { sleep } from '../utils/sleep'
 import { shopifyClient } from './shopifyClient'
 import JSONL from 'jsonl-parse-stringify'
 
-type Products = {
+export type Products = {
   [key: string]: Product
 }
 type Product = {
   id: string
   title: string
   variants: Variant[]
+  tags: string
 }
 type Variant = {
   id: string
@@ -33,6 +34,7 @@ export async function getAllShopifyProducts(): Promise<Products | undefined> {
               node {
                 id
                 title
+                tags
                 variants {
                   edges {
                     cursor

@@ -4,8 +4,9 @@ import { shopifyClient } from '../shopify-api-wrapper/shopifyClient'
 import { sendTeamsMessage } from '../teams_notifier/SEND-teamsMessage'
 import { returnType } from './returnTypes'
 import { sleep } from './sleep'
+import { Products } from '../shopify-api-wrapper/BULK-getAllProducts'
 
-export async function updateEuTaxCollection(): Promise<returnType> {
+export async function updateEuTaxCollection(allProducts: Products): Promise<returnType> {
   // Define function for a getting a page of shopify Products from Gql
   // handle throttling errors like https://chat.openai.com/c/c6a3d0be-6663-4b85-825b-c4b17965194f
   async function getProductsInEUTaxCollection(curser?: string) {
@@ -25,25 +26,11 @@ export async function updateEuTaxCollection(): Promise<returnType> {
           },
         },
       },
-      products: {
-        __args: { first: 180, after: curser },
-        pageInfo: {
-          hasNextPage: true,
-          endCursor: true,
-        },
-        nodes: {
-          id: true,
-
-          title: true,
-          tags: true,
-        },
-      },
     })
   }
 
   // Define the type of "allShopifyProducts" using the return type of the function that returns the single page
   let allProductsInEUTaxCollection: Awaited<ReturnType<typeof getProductsInEUTaxCollection>>[] = []
-  let allProducts: Awaited<ReturnType<typeof getProductsInEUTaxCollection>>[] = []
 
   while (true) {
     try {
@@ -63,57 +50,35 @@ export async function updateEuTaxCollection(): Promise<returnType> {
     await sleep(20000)
   }
 
-  while (true) {
-    try {
-      allProducts.push(await getProductsInEUTaxCollection(allProducts.at(-1)?.products.pageInfo.endCursor))
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.response?.data.errors.message === 'Throttled') {
-          await sleep(20000)
-          continue
-        } else if (error.response != null) {
-          console.log('Error getting shopify products, error.response.data.errors: ', error.response.data.errors)
-          await sendTeamsMessage('[1n2j3k1] Error getting shopify products', `**Error**: ${JSON.stringify(error.response.data.errors)}`)
-        }
-      }
-      return { type: 'error', error: '[asdmakl!!]: Error getting shopify products' + error }
-    }
-    if (!allProducts.at(-1)?.products.pageInfo.hasNextPage) break
-    await sleep(20000)
-  }
-
   let updatedProducts = ''
 
   if (allProductsInEUTaxCollection.length === 0) {
     console.log('No products in EU Tax Collection')
   }
-  if (allProducts.length === 0) {
-    console.log('No products in all products')
-  }
 
-  for (const { products } of allProducts) {
-    for (const product of products.nodes) {
-      if (allProductsInEUTaxCollection.find((e) => e.collection?.products.nodes.some((p) => p.id === product.id))) {
-        if (!product.tags.includes('nonfood')) {
-          continue
-        } else {
-          const updateProductDataResult = await updateProductData('leave', product)
-          if (updateProductDataResult.type === 'error') {
-            return updateProductDataResult
-          }
-          updatedProducts += updateProductDataResult.data
-        }
-        // Check if the current product already exists in the EU Tax Collection
-      }
-      if (product.tags.includes('nonfood')) {
+  const productIds = Object.keys(allProducts)
+
+  for (const productId of productIds) {
+    if (allProductsInEUTaxCollection.find((e) => e.collection?.products.nodes.some((p) => p.id === productId))) {
+      if (!allProducts[productId].tags.includes('nonfood')) {
         continue
+      } else {
+        const updateProductDataResult = await updateProductData('leave', { id: allProducts[productId].id, title: allProducts[productId].title })
+        if (updateProductDataResult.type === 'error') {
+          return updateProductDataResult
+        }
+        updatedProducts += updateProductDataResult.data
       }
-      const updateProductDataResult = await updateProductData('join', product)
-      if (updateProductDataResult.type === 'error') {
-        return updateProductDataResult
-      }
-      updatedProducts += updateProductDataResult.data
+      // Check if the current product already exists in the EU Tax Collection
     }
+    if (allProducts[productId].tags.includes('nonfood')) {
+      continue
+    }
+    const updateProductDataResult = await updateProductData('join', { id: allProducts[productId].id, title: allProducts[productId].title })
+    if (updateProductDataResult.type === 'error') {
+      return updateProductDataResult
+    }
+    updatedProducts += updateProductDataResult.data
   }
 
   if (updatedProducts !== '') {

@@ -16,12 +16,17 @@ async function main() {
   } else {
     console.log(new Date(new Date().getTime()).toLocaleString() + ': Started the script')
     try {
-      let mapProductsResult = await mapProducts()
+      const allShopifyProducts = await getAllShopifyProducts()
+      if (typeof allShopifyProducts === 'undefined') {
+        return { type: 'error', error: 'allShopifyProducts is undefined' }
+      }
+
+      let mapProductsResult = await mapProducts(allShopifyProducts)
       if (mapProductsResult.type === 'error') {
         sendTeamsMessage('Error mapping products', `**Error**: ${mapProductsResult.error}`)
       }
 
-      let updateEuTaxCollectionresult = await updateEuTaxCollection()
+      let updateEuTaxCollectionresult = await updateEuTaxCollection(allShopifyProducts)
       if (updateEuTaxCollectionresult.type === 'error') {
         sendTeamsMessage('Error updating EU Tax Collection', `**Error**: ${updateEuTaxCollectionresult.error}`)
       }

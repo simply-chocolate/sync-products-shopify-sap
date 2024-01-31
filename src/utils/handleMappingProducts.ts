@@ -8,9 +8,9 @@ import { sendTeamsMessage } from '../teams_notifier/SEND-teamsMessage'
 import { isSapProductIsMissingInfo } from './handleCheckingItemData'
 import { returnType } from './returnTypes'
 import { sleep } from './sleep'
-import { getAllShopifyProducts } from '../shopify-api-wrapper/BULK-getAllProducts'
+import { Products, getAllShopifyProducts } from '../shopify-api-wrapper/BULK-getAllProducts'
 
-export async function mapProducts(): Promise<returnType> {
+export async function mapProducts(allShopifyProducts: Products): Promise<returnType> {
   let pcnProductsToUpdate: PcnProduct[] = []
 
   let sapProducts = await getProducts()
@@ -18,10 +18,6 @@ export async function mapProducts(): Promise<returnType> {
     return { type: 'error', error: 'sapProducts is undefined' }
   }
 
-  const allShopifyProducts = await getAllShopifyProducts()
-  if (typeof allShopifyProducts === 'undefined') {
-    return { type: 'error', error: 'allShopifyProducts is undefined' }
-  }
   // Goes through the sapProducts to check if it needs to create or update a product
   for (let sapProduct of sapProducts.value) {
     let productBarcode = sapProduct.ItemBarCodeCollection.find((e) => String(e.UoMEntry) === sapProduct.U_CCF_Web_SalesUOM)
