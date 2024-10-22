@@ -67,7 +67,7 @@ export async function getProducts(): Promise<SapItemsData | void> {
           'U_CCF_Web_Sync_Date',
           'ItemsGroupCode',
         ].join(','),
-        $filter: "U_CCF_Sync_Web eq 'Y'",
+        $filter: "U_CCF_Sync_Web eq 'B2C'",
       },
     })
 
