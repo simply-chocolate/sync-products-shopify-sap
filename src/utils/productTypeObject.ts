@@ -3,5 +3,7 @@ export const productTypesObject: any = {
   '148': 'Bars',
   '157': 'Boxes',
   '153': 'Christmas',
-  '162': 'Christmas'
+  '162': 'Christmas',
+  '155': 'Easter',
+  '144': 'Easter',
 }
